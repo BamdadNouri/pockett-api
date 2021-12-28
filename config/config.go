@@ -10,6 +10,7 @@ type Config struct {
 	Database  *DatabaseConfig
 	Port      string
 	JWTSecret string
+	BaseURL   string
 }
 
 type DatabaseConfig struct {
@@ -39,5 +40,6 @@ func NewConfig() *Config {
 		},
 		Port:      viper.GetString("port"),
 		JWTSecret: viper.GetString("jwt_secret"),
+		BaseURL:   viper.GetString("api_base"),
 	}
 }

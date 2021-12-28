@@ -24,7 +24,7 @@ func main() {
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			cmd.Flags().String("config", "", "config file path")
 
-			cmd.Flags().String("api_base", "", "API base path")
+			cmd.Flags().String("api_base", "api", "API base path")
 
 			cmd.Flags().String("port", "8009", "pockett API port")
 
@@ -97,7 +97,7 @@ func runAPI() error {
 	transactionHandler := handlers.NewTransactionHandler(transactionRepo)
 	walletHandler := handlers.NewWalletHandler(walletRepo)
 
-	baseAPIGroup := engine.Group("")
+	baseAPIGroup := engine.Group(config.BaseURL)
 	apiGroup := baseAPIGroup.Group("")
 
 	transactionGroup := apiGroup.Group("transaction")
