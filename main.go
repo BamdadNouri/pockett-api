@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"sandbox/pockett-api/config"
 	"sandbox/pockett-api/internal/handlers"
@@ -98,6 +99,9 @@ func runAPI() error {
 	walletHandler := handlers.NewWalletHandler(walletRepo)
 
 	baseAPIGroup := engine.Group(config.BaseURL)
+	baseAPIGroup.GET("/healthz", func(c *gin.Context) {
+		c.JSON(http.StatusOK, "healthy")
+	})
 	apiGroup := baseAPIGroup.Group("")
 
 	transactionGroup := apiGroup.Group("transaction")
