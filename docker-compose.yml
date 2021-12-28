@@ -1,0 +1,19 @@
+version: "3"
+services:
+  app:
+    container_name: pockett-api
+    build: .
+    ports: 
+      - 8009:8009
+    depends_on:
+      - "db" 
+    restart: on-failure
+  db:
+    image: mariadb:10.4.8
+    ports:
+    - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: "root-secure-password"
+      MYSQL_USER: "pockett"
+      MYSQL_PASSWORD: "password"
+      MYSQL_DATABASE: "pockett"
