@@ -65,7 +65,14 @@ func (s *store) RunMigration() Store {
 		if s.err != nil {
 			return s
 		}
-		tables := []string{CreateUsersTable, CreateTagsTable, CreateTransactionsTable, CreateWalletsTable, CreateUserRecord, CreateWalletRecord, CreateTransactionRecord}
+		tables := []string{
+			CreateUsersTable,
+			CreateTagsTable,
+			CreateWalletsTable,
+			CreateTransactionsTable,
+			CreateUserRecord,
+			CreateWalletRecord,
+			CreateTransactionRecord}
 		for _, q := range tables {
 			_, err := s.db.Query(q)
 			if err != nil {

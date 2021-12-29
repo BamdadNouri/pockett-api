@@ -1,6 +1,9 @@
 package modules
 
-import "sandbox/pockett-api/internal/models"
+import (
+	"sandbox/pockett-api/internal/models"
+	"sandbox/pockett-api/internal/repositories"
+)
 
 type Wallet interface {
 	AddWallet(wallet models.WalletCreateReq) Wallet
@@ -10,6 +13,8 @@ type Wallet interface {
 }
 
 type wallet struct {
+	repository repositories.WalletRepository
+
 	id      uint64
 	title   string
 	color   string
@@ -20,11 +25,23 @@ type wallet struct {
 
 func NewWallet(ownerID uint64) Wallet {
 	return &wallet{
-		ownerID: ownerID,
+		ownerID:    ownerID,
+		repository: repositories.R.WalletRepository,
 	}
 }
 
 func (w *wallet) AddWallet(wallet models.WalletCreateReq) Wallet {
+	newWallet, err := w.repository.AddWallet(models.WalletEntity{
+		Title:   wallet.Title,
+		OwnerID: w.ownerID,
+	})
+	if err != nil {
+		w.err = err
+		return w
+	}
+	w.id = newWallet.ID
+	w.title = newWallet.Title
+
 	return w
 }
 

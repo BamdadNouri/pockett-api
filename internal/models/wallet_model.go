@@ -8,15 +8,15 @@ type WalletEntity struct {
 }
 
 type WalletCreateReq struct {
-	Title string
+	Title string `json:"title"`
 }
 
 type WalletUpdareReq struct {
-	ID    uint64
-	Title string
+	ID    uint64 `json:"id"`
+	Title string `json:"title"`
 }
 
 type WalletRes struct {
-	ID    uint64
-	Title string
+	ID    uint64 `json:"id"`
+	Title string `json:"title"`
 }

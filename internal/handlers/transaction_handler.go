@@ -19,6 +19,8 @@ func NewTransactionHandler(transactionRepo repositories.TransactionRepository) *
 }
 
 func (h *TransactionHandler) Add(c *gin.Context) {
+	uid := getUserID(c)
+
 	var body models.TransactionCreateReq
 	err := c.ShouldBindJSON(&body)
 	if err != nil {
@@ -30,7 +32,7 @@ func (h *TransactionHandler) Add(c *gin.Context) {
 		)
 		return
 	}
-	res, err := modules.NewTransaction(1).
+	res, err := modules.NewTransaction(uid, h.transactionRepo).
 		Create(body).
 		Result()
 
@@ -48,8 +50,9 @@ func (h *TransactionHandler) Add(c *gin.Context) {
 }
 
 func (h *TransactionHandler) Delete(c *gin.Context) {
+	uid := getUserID(c)
 	id, _ := strconv.Atoi(c.Param("id"))
-	res, err := modules.NewTransaction(1).
+	res, err := modules.NewTransaction(uid, h.transactionRepo).
 		SoftDelete(uint64(id)).
 		Result()
 	if err != nil {
@@ -69,7 +72,17 @@ func (h *TransactionHandler) Delete(c *gin.Context) {
 func (h *TransactionHandler) Update(c *gin.Context) {}
 
 func (h *TransactionHandler) Get(c *gin.Context) {
+	uid := getUserID(c)
 	sid := c.Query("id")
+	sWallet := c.Param("walletID")
+	wallet, err := strconv.Atoi(sWallet)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			map[string]string{"message": err.Error()},
+		)
+		return
+	}
 	spage := c.Query("page")
 	ssize := c.Query("size")
 
@@ -81,14 +94,15 @@ func (h *TransactionHandler) Get(c *gin.Context) {
 	if ssize != "" {
 		size, _ = strconv.Atoi(ssize)
 	}
-	modules := modules.NewTransaction(1)
-	if sid == "" {
+	var res []models.TransactionRes
+	tr := modules.NewTransaction(uid, h.transactionRepo)
+	if sid != "" {
 		id, _ := strconv.Atoi(sid)
-		modules.Find(uint64(id))
+		tr.Find(uint64(id), uint64(wallet))
 	} else {
-		modules.Bulk(page, size)
+		res = tr.Bulk(uint64(wallet), page, size)
 	}
-	res, err := modules.Result()
+	_, err = tr.Result()
 	if err != nil {
 		c.JSON(
 			http.StatusInternalServerError,
@@ -98,7 +112,12 @@ func (h *TransactionHandler) Get(c *gin.Context) {
 	}
 	c.JSON(
 		http.StatusOK,
-		res.ToRes(),
+		res,
 	)
 	return
+}
+
+func getUserID(c *gin.Context) uint64 {
+	uid, _ := c.Get("userID")
+	return uid.(uint64)
 }

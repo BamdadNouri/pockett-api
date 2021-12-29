@@ -14,12 +14,15 @@ type TransactionEntity struct {
 	Description     string
 	TagIDs          []uint64
 	Owner           uint64
+	WalletID        uint64
+	IsDeleted       bool
 }
 
 type TransactionCreateReq struct {
 	Amount          float64         `json:"amount"`
 	TransactionType TransactionType `json:"type"`
 	Description     string          `json:"description"`
+	WalletID        uint64          `json:"wallet_id"`
 	TagIDs          []uint64        `json:"tags"`
 }
 
@@ -28,6 +31,7 @@ type TransactionUpdateReq struct {
 	Amount          float64         `json:"amount"`
 	TransactionType TransactionType `json:"type"`
 	Description     string          `json:"description"`
+	WalletID        uint64          `json:"wallet_id"`
 	TagIDs          []uint64        `json:"tags"`
 }
 
@@ -36,5 +40,6 @@ type TransactionRes struct {
 	Amount          float64         `json:"amount"`
 	TransactionType TransactionType `json:"type"`
 	Description     string          `json:"description"`
+	WalletID        uint64          `json:"wallet_id"`
 	TagIDs          []uint64        `json:"tags"`
 }

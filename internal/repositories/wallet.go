@@ -1,6 +1,10 @@
 package repositories
 
-import "github.com/jmoiron/sqlx"
+import (
+	"sandbox/pockett-api/internal/models"
+
+	"github.com/jmoiron/sqlx"
+)
 
 type WalletEntity struct {
 	Title  string
@@ -8,7 +12,7 @@ type WalletEntity struct {
 }
 
 type WalletRepository interface {
-	AddWallet()
+	AddWallet(wallet models.WalletEntity) (*models.WalletEntity, error)
 	UpdateWallet()
 	DeleteWallet()
 	GetWallets()
@@ -22,7 +26,32 @@ func NewWalletRepo(db *sqlx.DB) WalletRepository {
 	return &WalletRepo{db}
 }
 
-func (t *WalletRepo) AddWallet() {}
+func (t *WalletRepo) AddWallet(wallet models.WalletEntity) (*models.WalletEntity, error) {
+	var res models.WalletEntity
+
+	_, err := t.db.Query(
+		"INSERT INTO wallets VALUES(0, ?, ?, false);",
+		wallet.Title, wallet.OwnerID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	r, err := t.db.Query(
+		"SELECT id, title, owner_id FROM wallets ORDER BY id DESC LIMIT 1;",
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer r.Close()
+	for r.Next() {
+		if err := r.Scan(
+			&res.ID, &res.Title, &res.OwnerID,
+		); err != nil {
+			return nil, err
+		}
+	}
+	return &res, nil
+}
 
 func (t *WalletRepo) UpdateWallet() {}
 

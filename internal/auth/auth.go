@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -33,7 +34,7 @@ func (as *AuthService) Authenticate(c *gin.Context) {
 		}
 		return []byte("SECRET"), nil
 	})
-	if err != nil || !realToken.Valid || realToken.Claims.(jwt.MapClaims)["unique_id"] == nil {
+	if err != nil || !realToken.Valid || realToken.Claims.(jwt.MapClaims)["user_id"] == nil {
 		c.AbortWithStatusJSON(
 			http.StatusUnauthorized,
 			gin.H{
@@ -42,6 +43,8 @@ func (as *AuthService) Authenticate(c *gin.Context) {
 		)
 		return
 	}
-	c.Set("userID", realToken.Claims.(jwt.MapClaims)["user_id"].(string))
+	// uid:=realToken.Claims.(jwt.MapClaims)["user_id"].(string)
+	i, _ := strconv.Atoi(realToken.Claims.(jwt.MapClaims)["user_id"].(string))
+	c.Set("userID", uint64(i))
 	c.Next()
 }

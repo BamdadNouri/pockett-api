@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"sandbox/pockett-api/config"
+	"sandbox/pockett-api/internal/auth"
 	"sandbox/pockett-api/internal/handlers"
 	"sandbox/pockett-api/internal/repositories"
 	"sandbox/pockett-api/internal/store"
@@ -91,12 +92,13 @@ func runAPI() error {
 		"Origin", "Content-Length", "Content-Type", "X-Screen-Height", "X-Screen-Width", "Authorization",
 	}
 	engine.Use(cors.New(engineConfig))
+	authService := auth.NewAuthService()
 
-	userRepo, transactionRepo, walletRepo := repositories.InitRepositories(db)
+	r := repositories.InitRepositories(db)
 
-	userHandler := handlers.NewUserHandler(userRepo)
-	transactionHandler := handlers.NewTransactionHandler(transactionRepo)
-	walletHandler := handlers.NewWalletHandler(walletRepo)
+	userHandler := handlers.NewUserHandler(r.UserRepository)
+	transactionHandler := handlers.NewTransactionHandler(r.TransactionRepository)
+	walletHandler := handlers.NewWalletHandler(r.WalletRepository)
 
 	baseAPIGroup := engine.Group(config.BaseURL)
 	baseAPIGroup.GET("/healthz", func(c *gin.Context) {
@@ -105,10 +107,11 @@ func runAPI() error {
 	apiGroup := baseAPIGroup.Group("")
 
 	transactionGroup := apiGroup.Group("transaction")
+	transactionGroup.Use(authService.Authenticate)
 	{
 		transactionGroup.POST("/", transactionHandler.Add)
 		transactionGroup.PUT("/", transactionHandler.Update)
-		transactionGroup.GET("/", transactionHandler.Get)
+		transactionGroup.GET("/:walletID", transactionHandler.Get)
 		transactionGroup.DELETE("/:id", transactionHandler.Delete)
 	}
 
@@ -120,6 +123,7 @@ func runAPI() error {
 	// 	tagGroup.DELETE("/", tagHandler.Delete)
 	// }
 	walletGroup := apiGroup.Group("wallet")
+	walletGroup.Use(authService.Authenticate)
 	{
 		walletGroup.POST("/", walletHandler.Add)
 		walletGroup.PUT("/", walletHandler.Update)

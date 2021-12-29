@@ -21,7 +21,7 @@ type User interface {
 }
 
 type claims struct {
-	ID uint64 `json:"user_id"`
+	ID string `json:"user_id"`
 	jwt.StandardClaims
 }
 
@@ -50,7 +50,7 @@ func (u *user) Register(user models.UserCreateReq) User {
 		u.err = err
 		return u
 	}
-	newUser, err := u.userRepo.AddUser(repositories.UserEntity{
+	newUser, err := u.userRepo.AddUser(models.UserEntity{
 		Email:    user.Email,
 		Username: user.Username,
 		Password: pw,
@@ -68,12 +68,18 @@ func (u *user) Register(user models.UserCreateReq) User {
 	u.theme = newUser.Theme
 	u.active = newUser.Active
 	u.generateToken()
+	w, err := NewWallet(u.id).AddWallet(models.WalletCreateReq{Title: "Wallet"}).Result()
+	if err != nil {
+		u.err = err
+		return u
+	}
+	u.setDefaultWallet(w.ToRes().ID)
 
 	return u
 }
 
 func (u *user) Login(user models.UserLogin) User {
-	ue := &repositories.UserEntity{}
+	ue := &models.UserEntity{}
 	var err error
 	if strings.Contains(user.ID, "@") {
 		ue, err = u.userRepo.GetByEmail(user.ID)
@@ -136,9 +142,19 @@ func (u *user) ToRes() models.UserRes {
 	}
 }
 
+func (u *user) setDefaultWallet(id uint64) User {
+	err := u.userRepo.SetDefaultWallet(u.id, id)
+	if err != nil {
+		u.err = err
+		return u
+	}
+	u.defaultWallet = id
+	return u
+}
+
 func (u *user) generateToken() User {
 	token, _ := jwt.
-		NewWithClaims(jwt.SigningMethodHS256, claims{ID: u.id}).
+		NewWithClaims(jwt.SigningMethodHS256, claims{ID: fmt.Sprintf("%d", u.id)}).
 		SignedString([]byte("SECRET"))
 
 	u.token = token

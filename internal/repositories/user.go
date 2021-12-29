@@ -7,23 +7,14 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type UserEntity struct {
-	ID              uint64
-	Email           string
-	Username        string
-	Password        string
-	Theme           models.AppTheme
-	DefaultWalletID int
-	Active          bool
-}
-
 type UserRepository interface {
-	AddUser(user UserEntity) (*UserEntity, error)
+	AddUser(user models.UserEntity) (*models.UserEntity, error)
 	UpdateUser()
 	DeleteUser()
 	GetUsers()
-	GetByEmail(email string) (*UserEntity, error)
-	GetByUsername(username string) (*UserEntity, error)
+	SetDefaultWallet(userID, walletID uint64) error
+	GetByEmail(email string) (*models.UserEntity, error)
+	GetByUsername(username string) (*models.UserEntity, error)
 }
 
 type UserRepo struct {
@@ -34,8 +25,8 @@ func NewUserRepo(db *sqlx.DB) UserRepository {
 	return &UserRepo{db}
 }
 
-func (u *UserRepo) AddUser(user UserEntity) (*UserEntity, error) {
-	var res UserEntity
+func (u *UserRepo) AddUser(user models.UserEntity) (*models.UserEntity, error) {
+	var res models.UserEntity
 
 	_, err := u.db.Query(fmt.Sprintf(
 		"INSERT INTO users VALUES(0, '%s', '%s', '%s', %d, NULL, %t);",
@@ -68,8 +59,16 @@ func (u *UserRepo) DeleteUser() {}
 
 func (u *UserRepo) GetUsers() {}
 
-func (u *UserRepo) GetByEmail(email string) (*UserEntity, error) {
-	var res UserEntity
+func (u *UserRepo) SetDefaultWallet(userID, walletID uint64) error {
+	_, err := u.db.Query(
+		"UPDATE users SET default_wallet_id = ? WHERE id = ?;",
+		walletID, userID,
+	)
+	return err
+}
+
+func (u *UserRepo) GetByEmail(email string) (*models.UserEntity, error) {
+	var res models.UserEntity
 
 	r, err := u.db.Query(
 		fmt.Sprintf("SELECT id, email, username, theme, is_active, password  FROM users WHERE email = '%s';", email),
@@ -88,8 +87,8 @@ func (u *UserRepo) GetByEmail(email string) (*UserEntity, error) {
 	return &res, nil
 }
 
-func (u *UserRepo) GetByUsername(username string) (*UserEntity, error) {
-	var res UserEntity
+func (u *UserRepo) GetByUsername(username string) (*models.UserEntity, error) {
+	var res models.UserEntity
 
 	r, err := u.db.Query(
 		fmt.Sprintf("SELECT id, email, username, theme, is_active, password  FROM users WHERE username = '%s';", username),

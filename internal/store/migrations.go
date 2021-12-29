@@ -20,11 +20,13 @@ const (
 	CreateTransactionsTable = `CREATE TABLE transactions(
 		id	INT PRIMARY KEY AUTO_INCREMENT,
 		amount  FLOAT,
-		trtransaction_type	 INT,
+		tr_type	 INT,
 		description VARCHAR(16),
 		tag_id INT,
 		owner_id INT,
 		FOREIGN KEY(owner_id) REFERENCES users(id),
+		wallet_id INT,
+		FOREIGN KEY(wallet_id) REFERENCES wallets(id),
 		is_deleted BOOLEAN
 	);`
 	CreateWalletsTable = `CREATE TABLE wallets(
@@ -34,7 +36,7 @@ const (
 		FOREIGN KEY(owner_id) REFERENCES users(id),
 		is_deleted 	BOOLEAN
 		);`
-	CreateUserRecord        = `INSERT INTO users VALUES(0,'admin@pockett.ir','admin','xxxx',1,0001,TRUE);`
-	CreateWalletRecord      = `INSERT INTO	transactions VALUES(0,10000,1,'init',2,1,false);`
-	CreateTransactionRecord = `INSERT INTO	wallets VALUES(0,'my wallet',1,false);`
+	CreateUserRecord        = `INSERT INTO users VALUES(0,'admin@pockett.ir','admin','xxxx',1,0001,0,TRUE);`
+	CreateWalletRecord      = `INSERT INTO wallets VALUES(0,'my wallet',1,false);`
+	CreateTransactionRecord = `INSERT INTO transactions VALUES(0,10000,1,'init',2,1,1,false);`
 )

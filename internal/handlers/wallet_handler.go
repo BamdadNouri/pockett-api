@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"net/http"
+	"sandbox/pockett-api/internal/models"
+	"sandbox/pockett-api/internal/modules"
 	"sandbox/pockett-api/internal/repositories"
 
 	"github.com/gin-gonic/gin"
@@ -22,19 +25,34 @@ func NewWalletHandler(walletRepository repositories.WalletRepository) *walletHan
 }
 
 func (h *walletHandler) Add(c *gin.Context) {
-	// var body models.WalletReq
-	// err := c.ShouldBindJSON(&body)
-	// if err != nil {
-	// 	c.JSON(http.StatusBadRequest, "invalid request body")
-	// 	return
-	// }
-	// res, err := h.service.Add(body)
-	// if err != nil {
-	// 	c.JSON(http.StatusBadRequest, err)
-	// 	return
-	// }
-	// c.JSON(http.StatusOK, res)
-	// return
+	uid := getUserID(c)
+
+	var body models.WalletCreateReq
+	err := c.ShouldBindJSON(&body)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"message": "invalid request",
+			},
+		)
+		return
+	}
+	res, err := modules.NewWallet(uid).
+		AddWallet(body).
+		Result()
+
+	if err != nil {
+		c.JSON(
+			http.StatusInternalServerError,
+			map[string]string{"message": err.Error()},
+		)
+		return
+	}
+	c.JSON(
+		http.StatusCreated,
+		res.ToRes(),
+	)
 }
 
 func (h *walletHandler) Delete(c *gin.Context) {}
