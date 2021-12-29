@@ -71,7 +71,7 @@ func (u *UserRepo) GetByEmail(email string) (*models.UserEntity, error) {
 	var res models.UserEntity
 
 	r, err := u.db.Query(
-		fmt.Sprintf("SELECT id, email, username, theme, is_active, password  FROM users WHERE email = '%s';", email),
+		fmt.Sprintf("SELECT id, email, username, theme, is_active, password, default_wallet_id  FROM users WHERE email = '%s';", email),
 	)
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func (u *UserRepo) GetByEmail(email string) (*models.UserEntity, error) {
 	defer r.Close()
 	for r.Next() {
 		if err := r.Scan(
-			&res.ID, &res.Email, &res.Username, &res.Theme, &res.Active, &res.Password,
+			&res.ID, &res.Email, &res.Username, &res.Theme, &res.Active, &res.Password, &res.DefaultWallet,
 		); err != nil {
 			return nil, err
 		}
@@ -91,7 +91,7 @@ func (u *UserRepo) GetByUsername(username string) (*models.UserEntity, error) {
 	var res models.UserEntity
 
 	r, err := u.db.Query(
-		fmt.Sprintf("SELECT id, email, username, theme, is_active, password  FROM users WHERE username = '%s';", username),
+		fmt.Sprintf("SELECT id, email, username, theme, is_active, password, default_wallet_id FROM users WHERE username = '%s';", username),
 	)
 	if err != nil {
 		return nil, err
@@ -99,7 +99,7 @@ func (u *UserRepo) GetByUsername(username string) (*models.UserEntity, error) {
 	defer r.Close()
 	for r.Next() {
 		if err := r.Scan(
-			&res.ID, &res.Email, &res.Username, &res.Theme, &res.Active, &res.Password,
+			&res.ID, &res.Email, &res.Username, &res.Theme, &res.Active, &res.Password, &res.DefaultWallet,
 		); err != nil {
 			return nil, err
 		}

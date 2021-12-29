@@ -100,6 +100,7 @@ func (u *user) Login(user models.UserLogin) User {
 	u.password = ue.Password
 	u.theme = ue.Theme
 	u.active = ue.Active
+	u.defaultWallet = ue.DefaultWallet
 	if u.checkPasswordHash(user.Password, ue.Password) {
 		u.generateToken()
 	}

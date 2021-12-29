@@ -66,7 +66,9 @@ func (h *UserHandler) Login(c *gin.Context) {
 
 	c.JSON(
 		http.StatusOK,
-		map[string]string{"token": res.Token()},
+		map[string]interface{}{
+			"token": res.Token(),
+			"user":  res.ToRes()},
 	)
 	return
 }
