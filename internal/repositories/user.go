@@ -1,9 +1,10 @@
 package repositories
 
 import (
-	"database/sql"
 	"fmt"
 	"sandbox/pockett-api/internal/models"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type UserEntity struct {
@@ -26,10 +27,10 @@ type UserRepository interface {
 }
 
 type UserRepo struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func NewUserRepo(db *sql.DB) UserRepository {
+func NewUserRepo(db *sqlx.DB) UserRepository {
 	return &UserRepo{db}
 }
 

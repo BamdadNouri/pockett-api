@@ -1,6 +1,6 @@
 package repositories
 
-import "database/sql"
+import "github.com/jmoiron/sqlx"
 
 type WalletEntity struct {
 	Title  string
@@ -15,10 +15,10 @@ type WalletRepository interface {
 }
 
 type WalletRepo struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func NewWalletRepo(db *sql.DB) WalletRepository {
+func NewWalletRepo(db *sqlx.DB) WalletRepository {
 	return &WalletRepo{db}
 }
 

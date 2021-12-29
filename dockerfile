@@ -36,4 +36,4 @@ COPY --from=builder /app/main .
 EXPOSE 8009
 
 #Command to run the executable
-CMD ["./main", "api", "--", "--with_migration=true"]
+CMD ["./main", "api", "--", "--with_migration=true", "--database_host=127.0.0.1"]

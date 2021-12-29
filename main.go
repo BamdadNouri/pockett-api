@@ -29,9 +29,8 @@ func main() {
 
 			cmd.Flags().String("port", "8009", "pockett API port")
 
-			// cmd.Flags().String("database_host", "127.0.0.1", "database host")
-			// cmd.Flags().String("database_host", "172.17.0.2", "database host")
-			cmd.Flags().String("database_host", "db", "database host")
+			cmd.Flags().String("database_host", "127.0.0.1", "database host")
+			// cmd.Flags().String("database_host", "db", "database host")
 			cmd.Flags().String("database_user", "pockett", "database user")
 			cmd.Flags().String("database_password", "password", "database password")
 			cmd.Flags().String("database_name", "pockett", "database name")

@@ -1,18 +1,20 @@
 package store
 
 import (
-	"database/sql"
 	"fmt"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 )
 
 type Store interface {
 	Init() Store
 	RunMigration() Store
-	Result() (*sql.DB, error)
+	Result() (*sqlx.DB, error)
 }
 
 type store struct {
-	db      *sql.DB
+	db      *sqlx.DB
 	dsn     string
 	migrate bool
 
@@ -28,7 +30,8 @@ func NewStore(dsn string, migrate bool) Store {
 
 func (s *store) Init() Store {
 	fmt.Println("init store", s.dsn)
-	db, err := sql.Open("mysql", s.dsn)
+	db, err := sqlx.Open("mysql", s.dsn)
+	// db, err := sql.Open("mysql", s.dsn)
 	if err != nil {
 		s.err = fmt.Errorf("error in initializing database", err)
 		return s
@@ -76,7 +79,7 @@ func (s *store) RunMigration() Store {
 	return s
 }
 
-func (s *store) Result() (*sql.DB, error) {
+func (s *store) Result() (*sqlx.DB, error) {
 	return s.db, s.err
 }
 

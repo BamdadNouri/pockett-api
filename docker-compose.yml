@@ -5,23 +5,23 @@ services:
     build: .
     ports: 
     - 8009:8009
-    depends_on:
-      - db 
+    # depends_on:
+    #   - db 
     restart: on-failure
     # networks: 
     #   - dbnet
-  db:
+  # db:
     # container_name: pockett-db
-    image: mariadb:10.4.8
-    ports:
-    - 3306:3306
-    # networks: 
-    #   - dbnet
-    environment:
-      MYSQL_ROOT_PASSWORD: "root-secure-password"
-      MYSQL_USER: "pockett"
-      MYSQL_PASSWORD: "password"
-      MYSQL_DATABASE: "pockett"
+    # image: mariadb:10.4.8
+    # ports:
+    # - 3306:3306
+    # # networks: 
+    # #   - dbnet
+    # environment:
+    #   MYSQL_ROOT_PASSWORD: "root-secure-password"
+    #   MYSQL_USER: "pockett"
+    #   MYSQL_PASSWORD: "password"
+    #   MYSQL_DATABASE: "pockett"
 # networks:
 #   dbnet:
 #     driver: bridge

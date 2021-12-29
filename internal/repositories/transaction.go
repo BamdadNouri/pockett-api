@@ -1,8 +1,9 @@
 package repositories
 
 import (
-	"database/sql"
 	"sandbox/pockett-api/internal/models"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type TransactionRepository interface {
@@ -13,10 +14,10 @@ type TransactionRepository interface {
 }
 
 type TransactionRepo struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func NewTransactionRepo(db *sql.DB) TransactionRepository {
+func NewTransactionRepo(db *sqlx.DB) TransactionRepository {
 	return &TransactionRepo{db}
 }
 
