@@ -30,6 +30,7 @@ func main() {
 			cmd.Flags().String("port", "8009", "pockett API port")
 
 			// cmd.Flags().String("database_host", "127.0.0.1", "database host")
+			// cmd.Flags().String("database_host", "172.17.0.2", "database host")
 			cmd.Flags().String("database_host", "db", "database host")
 			cmd.Flags().String("database_user", "pockett", "database user")
 			cmd.Flags().String("database_password", "password", "database password")
@@ -71,9 +72,9 @@ func main() {
 
 func runAPI() error {
 	config := config.NewConfig()
-	db, err := store.NewStore(config.Database.DSN()).
+	db, err := store.NewStore(config.Database.DSN(), config.Database.Migrate).
 		Init().
-		RunMigration(config.Database.Migrate).
+		RunMigration().
 		Result()
 	if err != nil {
 		return fmt.Errorf("error in initializing database", err)

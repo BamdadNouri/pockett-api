@@ -7,35 +7,58 @@ import (
 
 type Store interface {
 	Init() Store
-	RunMigration(migrate bool) Store
+	RunMigration() Store
 	Result() (*sql.DB, error)
 }
 
 type store struct {
-	db  *sql.DB
-	dsn string
+	db      *sql.DB
+	dsn     string
+	migrate bool
 
 	err error
 }
 
-func NewStore(dsn string) Store {
+func NewStore(dsn string, migrate bool) Store {
 	return &store{
-		dsn: dsn,
+		dsn:     dsn,
+		migrate: migrate,
 	}
 }
 
 func (s *store) Init() Store {
+	fmt.Println("init store", s.dsn)
 	db, err := sql.Open("mysql", s.dsn)
 	if err != nil {
 		s.err = fmt.Errorf("error in initializing database", err)
 		return s
 	}
+	r, err := db.Query("show tables;")
+	if err != nil {
+		s.err = fmt.Errorf("error in getting tables", err)
+		return s
+	}
+	tables := []string{}
+	defer r.Close()
+	for r.Next() {
+		var t string
+		if err := r.Scan(
+			&t,
+		); err != nil {
+			s.err = fmt.Errorf("error in scanning table names", err)
+			return s
+		}
+		tables = append(tables, t)
+	}
+	if len(tables) > 0 {
+		s.migrate = false
+	}
 	s.db = db
 	return s
 }
 
-func (s *store) RunMigration(migrate bool) Store {
-	if migrate {
+func (s *store) RunMigration() Store {
+	if s.migrate {
 		if s.err != nil {
 			return s
 		}
