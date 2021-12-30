@@ -11,6 +11,12 @@ Pockett uses JWT for authentication. Both Register & Login endpoints return a JW
 ### Security
 Pockett hashes passwords and does not store plain text.
 
+### Configurations
+Pockett API uses flags for it's configs. The complete list of configs could be found in `internal/config/config.go`
+
+### Dependencies
+Pockett API uses MySQL for data storage. It can be set up using `docker-compose.yml` in the project. Using `database_user, database_password, database_name, database_port` flags database configs could be set to the application.
+
 ### Endpoints
 `Base_URL` is _`https://pockett.bamdad.dev/api`_.
 
