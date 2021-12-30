@@ -17,7 +17,7 @@ func NewAuthService() *AuthService {
 
 func (as *AuthService) Authenticate(c *gin.Context) {
 
-	token := c.GetHeader("token")
+	token := c.GetHeader("Authorization")
 
 	if token == "" {
 		c.AbortWithStatusJSON(

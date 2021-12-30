@@ -1,7 +1,6 @@
 package modules
 
 import (
-	"fmt"
 	"sandbox/pockett-api/internal/models"
 	"sandbox/pockett-api/internal/repositories"
 )
@@ -75,7 +74,6 @@ func (t *transaction) Bulk(walletID uint64, page, size int) []models.Transaction
 		t.err = err
 		return []models.TransactionRes{}
 	}
-	fmt.Println(">>>>>>", transactions)
 	for _, tr := range *transactions {
 		res = append(res, models.TransactionRes{
 			ID:              tr.ID,
