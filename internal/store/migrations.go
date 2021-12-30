@@ -21,7 +21,7 @@ const (
 		id	INT PRIMARY KEY AUTO_INCREMENT,
 		amount  FLOAT,
 		tr_type	 INT,
-		description VARCHAR(16),
+		description VARCHAR(1024),
 		tag_id INT,
 		owner_id INT,
 		FOREIGN KEY(owner_id) REFERENCES users(id),

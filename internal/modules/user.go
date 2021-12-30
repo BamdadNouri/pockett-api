@@ -11,6 +11,7 @@ import (
 )
 
 type User interface {
+	CheckExistance(email, username string) User
 	Register(user models.UserCreateReq) User
 	Login(user models.UserLogin) User
 	Find(id uint64) User
@@ -44,7 +45,32 @@ func NewUser(userRepo repositories.UserRepository) User {
 	return &user{userRepo: userRepo}
 }
 
+func (u *user) CheckExistance(email, username string) User {
+	checkEmail, err := u.userRepo.CheckExistanceByEmail(email)
+	if err != nil {
+		u.err = err
+		return u
+	}
+	if checkEmail {
+		u.err = fmt.Errorf("this email already taken")
+		return u
+	}
+	checkUsername, err := u.userRepo.CheckExistanceByUsername(username)
+	if err != nil {
+		u.err = err
+		return u
+	}
+	if checkUsername {
+		u.err = fmt.Errorf("this username already taken")
+		return u
+	}
+	return u
+}
+
 func (u *user) Register(user models.UserCreateReq) User {
+	if u.err != nil {
+		return u
+	}
 	pw, err := u.hashPassword(user.Password)
 	if err != nil {
 		u.err = err
@@ -79,6 +105,9 @@ func (u *user) Register(user models.UserCreateReq) User {
 }
 
 func (u *user) Login(user models.UserLogin) User {
+	if u.err != nil {
+		return u
+	}
 	ue := &models.UserEntity{}
 	var err error
 	if strings.Contains(user.ID, "@") {
@@ -94,6 +123,10 @@ func (u *user) Login(user models.UserLogin) User {
 		u.err = fmt.Errorf("NOT FOUND")
 		return u
 	}
+	if !u.checkPasswordHash(user.Password, ue.Password) {
+		u.err = fmt.Errorf("ACCESS DENIED")
+		return u
+	}
 	u.id = ue.ID
 	u.email = ue.Email
 	u.username = ue.Username
@@ -101,9 +134,8 @@ func (u *user) Login(user models.UserLogin) User {
 	u.theme = ue.Theme
 	u.active = ue.Active
 	u.defaultWallet = ue.DefaultWallet
-	if u.checkPasswordHash(user.Password, ue.Password) {
-		u.generateToken()
-	}
+	u.generateToken()
+
 	return u
 }
 
@@ -112,6 +144,9 @@ func (u *user) Find(id uint64) User {
 }
 
 func (u *user) AddDefaultWallet(id uint64) User {
+	if u.err != nil {
+		return u
+	}
 	wallet, _ := NewWallet(u.id).
 		AddWallet(models.WalletCreateReq{Title: "Wallet"}).
 		Result()

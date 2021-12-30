@@ -15,6 +15,8 @@ type UserRepository interface {
 	SetDefaultWallet(userID, walletID uint64) error
 	GetByEmail(email string) (*models.UserEntity, error)
 	GetByUsername(username string) (*models.UserEntity, error)
+	CheckExistanceByUsername(username string) (bool, error)
+	CheckExistanceByEmail(email string) (bool, error)
 }
 
 type UserRepo struct {
@@ -105,4 +107,42 @@ func (u *UserRepo) GetByUsername(username string) (*models.UserEntity, error) {
 		}
 	}
 	return &res, nil
+}
+
+func (u *UserRepo) CheckExistanceByUsername(username string) (bool, error) {
+	var id uint64
+
+	r, err := u.db.Query("SELECT id FROM users WHERE username = ?", username)
+	if err != nil {
+		return false, err
+	}
+	defer r.Close()
+	for r.Next() {
+		if err := r.Scan(&id); err != nil {
+			return false, err
+		}
+		if id != 0 {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (u *UserRepo) CheckExistanceByEmail(email string) (bool, error) {
+	var id uint64
+
+	r, err := u.db.Query("SELECT id FROM users WHERE email = ?", email)
+	if err != nil {
+		return false, err
+	}
+	defer r.Close()
+	for r.Next() {
+		if err := r.Scan(&id); err != nil {
+			return false, err
+		}
+		if id != 0 {
+			return true, nil
+		}
+	}
+	return false, nil
 }

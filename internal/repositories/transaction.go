@@ -11,6 +11,7 @@ type TransactionRepository interface {
 	UpdateTransaction()
 	DeleteTransaction()
 	GetTransactions(id, walletID uint64) (*[]models.TransactionEntity, error)
+	GetBalanceDetails(id, walletID uint64) (map[models.TransactionType]float64, error)
 }
 
 type TransactionRepo struct {
@@ -57,7 +58,7 @@ func (t *TransactionRepo) GetTransactions(id, walletID uint64) (*[]models.Transa
 	var respose []models.TransactionEntity
 
 	r, err := t.db.Query(
-		"SELECT id, amount, tr_type, description, owner_id, wallet_id, is_deleted FROM transactions WHERE wallet_id = ? AND owner_id = ?;",
+		"SELECT id, amount, tr_type, description, owner_id, wallet_id, is_deleted FROM transactions WHERE wallet_id = ? AND owner_id = ? ORDER BY id DESC;",
 		walletID, id,
 	)
 	if err != nil {
@@ -74,4 +75,28 @@ func (t *TransactionRepo) GetTransactions(id, walletID uint64) (*[]models.Transa
 		respose = append(respose, res)
 	}
 	return &respose, nil
+}
+
+func (t *TransactionRepo) GetBalanceDetails(id, walletID uint64) (map[models.TransactionType]float64, error) {
+	response := make(map[models.TransactionType]float64)
+
+	r, err := t.db.Query(
+		"SELECT tr_type, SUM(amount) FROM transactions WHERE wallet_id = ? AND owner_id = ? GROUP BY tr_type;",
+		walletID, id,
+	)
+	if err != nil {
+		return map[models.TransactionType]float64{}, err
+	}
+	defer r.Close()
+	for r.Next() {
+		var t models.TransactionType
+		var a float64
+		if err := r.Scan(
+			&t, &a,
+		); err != nil {
+			return map[models.TransactionType]float64{}, err
+		}
+		response[t] = a
+	}
+	return response, nil
 }

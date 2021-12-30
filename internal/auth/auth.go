@@ -38,7 +38,7 @@ func (as *AuthService) Authenticate(c *gin.Context) {
 		c.AbortWithStatusJSON(
 			http.StatusUnauthorized,
 			gin.H{
-				"message": "no token is provided",
+				"message": "invalid token",
 			},
 		)
 		return

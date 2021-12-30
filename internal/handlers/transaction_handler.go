@@ -102,6 +102,7 @@ func (h *TransactionHandler) Get(c *gin.Context) {
 	} else {
 		res = tr.Bulk(uint64(wallet), page, size)
 	}
+	balance := tr.GetBalance()
 	_, err = tr.Result()
 	if err != nil {
 		c.JSON(
@@ -110,9 +111,16 @@ func (h *TransactionHandler) Get(c *gin.Context) {
 		)
 		return
 	}
+	modules.NewWallet(uid)
 	c.JSON(
 		http.StatusOK,
-		res,
+		map[string]interface{}{
+			"transactions": res,
+			"wallet": map[string]interface{}{
+				"balance": balance,
+				"curr":    "IRT",
+			},
+		},
 	)
 	return
 }

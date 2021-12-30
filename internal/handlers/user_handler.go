@@ -26,6 +26,7 @@ func (h *UserHandler) Add(c *gin.Context) {
 	}
 
 	res, err := modules.NewUser(h.userRepo).
+		CheckExistance(body.Email, body.Username).
 		Register(body).
 		Result()
 	if err != nil {

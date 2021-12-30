@@ -14,6 +14,7 @@ type Transaction interface {
 	Result() (Transaction, error)
 	Error() error
 	ToRes() models.TransactionRes
+	GetBalance() float64
 }
 
 type transaction struct {
@@ -69,6 +70,7 @@ func (t *transaction) Find(id uint64, walletID uint64) Transaction {
 }
 func (t *transaction) Bulk(walletID uint64, page, size int) []models.TransactionRes {
 	var res []models.TransactionRes
+	t.walletID = walletID
 	transactions, err := t.repository.GetTransactions(t.ownerID, walletID)
 	if err != nil || len(*transactions) == 0 {
 		t.err = err
@@ -103,4 +105,13 @@ func (t *transaction) ToRes() models.TransactionRes {
 		WalletID:        t.walletID,
 		// TagIDs:          t.tagIDs,
 	}
+}
+
+func (t *transaction) GetBalance() float64 {
+	balanceDetails, err := t.repository.GetBalanceDetails(t.ownerID, t.walletID)
+	if err != nil {
+		t.err = err
+		return 0
+	}
+	return balanceDetails[models.Earn] - balanceDetails[models.Spend]
 }
