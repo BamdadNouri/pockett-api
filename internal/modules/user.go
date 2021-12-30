@@ -2,6 +2,7 @@ package modules
 
 import (
 	"fmt"
+	"sandbox/pockett-api/internal/errs"
 	"sandbox/pockett-api/internal/models"
 	"sandbox/pockett-api/internal/repositories"
 	"strings"
@@ -52,7 +53,7 @@ func (u *user) CheckExistance(email, username string) User {
 		return u
 	}
 	if checkEmail {
-		u.err = fmt.Errorf("this email already taken")
+		u.err = errs.ErrEmailTaken
 		return u
 	}
 	checkUsername, err := u.userRepo.CheckExistanceByUsername(username)
@@ -61,7 +62,7 @@ func (u *user) CheckExistance(email, username string) User {
 		return u
 	}
 	if checkUsername {
-		u.err = fmt.Errorf("this username already taken")
+		u.err = errs.ErrUsernameTaken
 		return u
 	}
 	return u
@@ -120,11 +121,11 @@ func (u *user) Login(user models.UserLogin) User {
 		return u
 	}
 	if ue.Password == "" {
-		u.err = fmt.Errorf("NOT FOUND")
+		u.err = errs.ErrNotFound
 		return u
 	}
 	if !u.checkPasswordHash(user.Password, ue.Password) {
-		u.err = fmt.Errorf("ACCESS DENIED")
+		u.err = errs.ErrAccessDenied
 		return u
 	}
 	u.id = ue.ID

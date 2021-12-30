@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
+	"sandbox/pockett-api/internal/errs"
 	"sandbox/pockett-api/internal/models"
 	"sandbox/pockett-api/internal/modules"
 	"sandbox/pockett-api/internal/repositories"
@@ -30,6 +32,13 @@ func (h *UserHandler) Add(c *gin.Context) {
 		Register(body).
 		Result()
 	if err != nil {
+		if errors.Is(err, errs.ErrEmailTaken) || errors.Is(err, errs.ErrUsernameTaken) {
+			c.JSON(
+				http.StatusBadRequest,
+				map[string]string{"message": err.Error()},
+			)
+			return
+		}
 		c.JSON(
 			http.StatusInternalServerError,
 			map[string]string{"message": err.Error()},
@@ -57,7 +66,20 @@ func (h *UserHandler) Login(c *gin.Context) {
 		Login(body).
 		Result()
 	if err != nil {
-		// if token == "" unauthorized...
+		if errors.Is(err, errs.ErrNotFound) {
+			c.JSON(
+				http.StatusNotFound,
+				map[string]string{"message": err.Error()},
+			)
+			return
+		}
+		if errors.Is(err, errs.ErrAccessDenied) {
+			c.JSON(
+				http.StatusForbidden,
+				map[string]string{"message": err.Error()},
+			)
+			return
+		}
 		c.JSON(
 			http.StatusInternalServerError,
 			map[string]string{"message": err.Error()},

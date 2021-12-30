@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"sandbox/pockett-api/internal/errs"
 	"sandbox/pockett-api/internal/models"
 	"sandbox/pockett-api/internal/modules"
 	"sandbox/pockett-api/internal/repositories"
@@ -27,7 +28,7 @@ func (h *TransactionHandler) Add(c *gin.Context) {
 		c.JSON(
 			http.StatusBadRequest,
 			gin.H{
-				"message": "invalid request",
+				"message": errs.ErrInvalidRequest,
 			},
 		)
 		return
