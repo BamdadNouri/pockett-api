@@ -1,6 +1,6 @@
 ## Pockett API
 
-Pocket is a simple money management tool. This is pockett's API, written in Go. Web app repository could be found [here]().
+Pocket is a simple money management tool. This is pockett's API, written in Go. Web app repository could be found [here](https://github.com/MhmdNdri/Pockett). Alsoe database documents could be found [here](https://github.com/sepidehghanadi/dbpockett)
 
 ### About the architecture
 This application has a stateful modules. HTTP handlers could be found in `internal/handlers` package. Checkout the list of endpoints bellow for more information. Modules could be found in `internal/modules` package.
